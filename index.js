@@ -9,31 +9,33 @@ require('dotenv').config();
 const PORT = process.env.PORT || 4545
 
 app.use(express.json());
-app.use(cookieparser());
 
-// app.use(cors({
-//     origin: process.env.FRONT_END_URL,
-//     credentials: true
-// }));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
-const allowedOrigins = [
-    'http://localhost:5173', 
-    'https://schedule-lec-front-end.vercel.app'
-];
+app.use(cors());
+app.use(express.json());
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
+const customCors = (req, res, next) => {
+    const allowedOrigins = ['http://localhost:4545', 'https://schedule-lec-front-end.vercel.app'];
 
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
-    credentials: true
+    // Check if the request origin is allowed
+    if (allowedOrigins.includes(req.headers.origin)) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+    }
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return res.status(200).json({});
+    }
+
+    next();
 };
 
+// Use custom CORS middleware
+app.use(customCors);
 
 app.get('/',(req,res)=>{
     res.json({
