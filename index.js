@@ -1,13 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const cookieparser = require('cookie-parser');
-const router = require('./Router/index')
+const express = require("express");
+const cors = require("cors");
+const router = require("./Router/index");
 const app = express();
-const bodyParser = require('body-parser');
-require('./DBconfig/ConnectionDB');
-require('dotenv').config();
+const bodyParser = require("body-parser");
+require("./DBconfig/ConnectionDB");
+require("dotenv").config();
 
-const PORT = process.env.PORT || 4545
+const PORT = process.env.PORT || 4545;
 
 app.use(express.json());
 
@@ -18,34 +17,38 @@ app.use(cors());
 app.use(express.json());
 
 const customCors = (req, res, next) => {
-    const allowedOrigins = ['http://localhost:4545', 'https://schedule-lec-front-end.vercel.app'];
+  const allowedOrigins = [
+    "http://localhost:4545",
+    "https://schedule-lec-front-end.vercel.app",
+  ];
 
-    // Check if the request origin is allowed
-    if (allowedOrigins.includes(req.headers.origin)) {
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
-    }
+  if (allowedOrigins.includes(req.headers.origin)) {
+    res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+  }
 
-    // Handle preflight requests
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        return res.status(200).json({});
-    }
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-    next();
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  next();
 };
 
-// Use custom CORS middleware
 app.use(customCors);
 
-app.get('/',(req,res)=>{
-    res.json({
-        message : "Hello IDEAMAGIX"
-    })
-})
+app.get("/", (req, res) => {
+  res.json({
+    message: "Hello IDEAMAGIX",
+  });
+});
 
-app.use('/Schedule/Lecture', router)
+app.use("/Schedule/Lecture", router);
 
-app.listen(PORT, ()=>{
-    console.log("Server Running On Port "+PORT);
+app.listen(PORT, () => {
+  console.log("Server Running On Port " + PORT);
 });
